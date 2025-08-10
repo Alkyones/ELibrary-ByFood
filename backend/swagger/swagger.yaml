@@ -1,0 +1,146 @@
+openapi: 3.0.0
+info:
+  title: ELibrary ByFood API
+  version: 1.0.0
+  description: Brief documentation of all API endpoints for ELibrary ByFood.
+servers:
+  - url: http://localhost:8080
+paths:
+  /books:
+    get:
+      summary: Get all books
+      responses:
+        '200':
+          description: List of books
+    post:
+      summary: Add a new book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+      responses:
+        '201':
+          description: Book created
+  /books/{id}:
+    get:
+      summary: Get book by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Book details
+    put:
+      summary: Update book by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+      responses:
+        '200':
+          description: Book updated
+    delete:
+      summary: Delete book by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Book deleted
+  /urls:
+    get:
+      summary: Get all URLs
+      responses:
+        '200':
+          description: List of URLs
+    post:
+      summary: Add a new URL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/URL'
+      responses:
+        '201':
+          description: URL created
+  /urls/{id}:
+    get:
+      summary: Get URL by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: URL details
+    put:
+      summary: Update URL by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/URL'
+      responses:
+        '200':
+          description: URL updated
+    delete:
+      summary: Delete URL by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: URL deleted
+components:
+  schemas:
+    Book:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        author:
+          type: string
+        description:
+          type: string
+        publishedYear:
+          type: integer
+    URL:
+      type: object
+      properties:
+        id:
+          type: string
+        link:
+          type: string
+        description:
+          type: string
