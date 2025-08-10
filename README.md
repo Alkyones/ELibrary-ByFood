@@ -54,10 +54,14 @@
    ```bash
    cd backend
    ```
-2. Run all Go tests:
+2. Run all tests:
    ```bash
-   go test ./...
+   go test -v ./tests
    ```
+3. Alternatively run specific test file:
+    ```bash
+    go test -v /./tests/file_name
+    ```
 
 ---
 
