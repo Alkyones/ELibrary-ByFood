@@ -18,6 +18,11 @@ const DocumentationPage = () => (
         <pre className="bg-gray-100 p-2 rounded mb-2 whitespace-pre-wrap">npm install</pre>
         <pre className="bg-gray-100 p-2 rounded mb-2 whitespace-pre-wrap">npm run dev</pre>
     </section>
+    <section className="mb-8">
+      <h2 className="text-2xl font-semibold mb-2">API Documentation</h2>
+      <p className="mb-2">View and test all backend endpoints interactively using Swagger UI:</p>
+      <a href="/documentation/swagger-ui" className="text-blue-600 underline">Open Swagger UI</a>
+    </section>
     <section>
       <h2 className="text-2xl font-semibold mb-2">How to Run Unit Tests</h2>
       <h3 className="text-xl font-semibold mt-4">Backend (Go)</h3>
