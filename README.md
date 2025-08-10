@@ -125,8 +125,14 @@
    <br>
    <ul>
       <li><b>About the Project:</b> ELibrary ByFood is a full-stack web application for managing, searching, and documenting your book collection. It features a Go backend and a Next.js frontend, with a modern UI and robust API.</li>
-      <li><b>Accessing Swagger API Docs:</b> After starting both backend and frontend servers, open your browser and go to <code>http://localhost:3000/documentation</code> or <code>http://localhost:8080/api/docs</code> (depending on your setup) to view and interact with the Swagger UI.</li>
+      <li><b>Accessing Swagger API Docs:</b> After starting both backend and frontend servers, open your browser and go to <code>http://localhost:3000/documentation</code> to view and interact with the Swagger UI.</li>
       <li><b>Troubleshooting:</b> If you encounter issues, check the terminal for error messages and logs. Most problems can be resolved by reviewing the output and ensuring all dependencies are installed.</li>
       <li><b>Need Help?</b> For further help, consult the code comments, review the documentation, or reach out to me.</li>
    </ul>
+</details>
+<details open>
+   <summary><b>Git History (On Request)</b></summary>
+   <br>
+   <p>On request git history from development attached to the read.me</p>
+   <img src="assets/git_history.png" alt="Git History" />
 </details>
