@@ -22,7 +22,12 @@ type BookAction =
   | { type: 'CLEAR_ERROR' };
 
 interface BookContextType extends BookState {
-  fetchBooks: () => Promise<void>;
+  fetchBooks: (params?: {
+      title?: string;
+      author?: string;
+      orderBy?: string;
+      orderDir?: 'asc' | 'desc';
+    }) => Promise<void>;
   fetchBookById: (id: number) => Promise<void>;
   createBook: (book: Omit<Book, 'id' | 'created_at' | 'updated_at'>) => Promise<void>;
   updateBook: (id: number, book: Omit<Book, 'id' | 'created_at' | 'updated_at'>) => Promise<void>;
@@ -93,10 +98,15 @@ const BookContext = createContext<BookContextType | undefined>(undefined);
 export const BookProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(bookReducer, initialState);
 
-  const fetchBooks = async () => {
+  const fetchBooks = async (params?: {
+    title?: string;
+    author?: string;
+    orderBy?: string;
+    orderDir?: 'asc' | 'desc';
+  }) => {
     try {
       dispatch({ type: 'SET_LOADING', payload: true });
-      const books = await bookAPI.getAllBooks();
+      const books = await bookAPI.getAllBooks(params);
       dispatch({ type: 'SET_BOOKS', payload: books });
     } catch (error) {
       dispatch({ type: 'SET_ERROR', payload: (error as Error).message });

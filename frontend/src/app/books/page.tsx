@@ -10,6 +10,21 @@ import { ErrorMessage, EmptyState } from '@/components/ErrorMessage';
 import { Book } from '@/types/book';
 
 export default function BooksPage() {
+  // Filter and ordering state
+  const [filterTitle, setFilterTitle] = useState('');
+  const [filterAuthor, setFilterAuthor] = useState('');
+  const [orderBy, setOrderBy] = useState('');
+  const [orderDir, setOrderDir] = useState<'asc' | 'desc'>('asc');
+
+  // Fetch books with filters/order
+  const handleFilterOrder = () => {
+    fetchBooks({
+      title: filterTitle,
+      author: filterAuthor,
+      orderBy,
+      orderDir,
+    });
+  };
   const { 
     books, 
     loading, 
@@ -89,6 +104,51 @@ export default function BooksPage() {
 
   return (
     <div className="space-y-8">
+      {/* Filter & Order Controls */}
+      <div className="bg-white p-4 rounded-lg shadow flex flex-col md:flex-row md:items-end gap-4">
+        <div className="flex flex-col gap-2 md:flex-row md:gap-4">
+          <input
+            type="text"
+            placeholder="Filter by Title"
+            value={filterTitle}
+            onChange={e => setFilterTitle(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') handleFilterOrder(); }}
+            className="border rounded px-3 py-2 text-sm"
+          />
+          <input
+            type="text"
+            placeholder="Filter by Author"
+            value={filterAuthor}
+            onChange={e => setFilterAuthor(e.target.value)}
+            onKeyDown={e => { if (e.key === 'Enter') handleFilterOrder(); }}
+            className="border rounded px-3 py-2 text-sm"
+          />
+          <select
+            value={orderBy}
+            onChange={e => setOrderBy(e.target.value)}
+            className="border rounded px-3 py-2 text-sm"
+          >
+            <option value="">Order By</option>
+            <option value="title">Title</option>
+            <option value="author">Author</option>
+            <option value="year">Year</option>
+          </select>
+          <select
+            value={orderDir}
+            onChange={e => setOrderDir(e.target.value as 'asc' | 'desc')}
+            className="border rounded px-3 py-2 text-sm"
+          >
+            <option value="asc">Ascending</option>
+            <option value="desc">Descending</option>
+          </select>
+        </div>
+        <button
+          onClick={handleFilterOrder}
+          className="mt-2 md:mt-0 px-4 py-2 bg-primary-600 text-white rounded hover:bg-primary-700"
+        >
+          Search
+        </button>
+      </div>
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
