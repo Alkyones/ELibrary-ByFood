@@ -33,7 +33,7 @@ func ProcessURL(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Process URL based on operation type
-	processedURL, err := processURLByOperation(request.URL, request.Operation)
+	processedURL, err := ProcessURLByOperation(request.URL, request.Operation)
 	if err != nil {
 		logrus.WithError(err).Error("Failed to process URL")
 		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to process URL")
@@ -84,7 +84,7 @@ func validateURLRequest(request models.URLRequest) error {
 }
 
 // processURLByOperation processes the URL based on the operation type
-func processURLByOperation(inputURL, operation string) (string, error) {
+func ProcessURLByOperation(inputURL, operation string) (string, error) {
 	parsedURL, err := url.Parse(inputURL)
 	if err != nil {
 		return "", err
@@ -92,14 +92,14 @@ func processURLByOperation(inputURL, operation string) (string, error) {
 
 	switch operation {
 	case "canonical":
-		return processCanonical(parsedURL), nil
+		return ProcessCanonical(parsedURL), nil
 	case "redirection":
-		return processRedirection(parsedURL), nil
+		return ProcessRedirection(parsedURL), nil
 	case "all":
 		// First apply canonical, then redirection
-		canonicalURL := processCanonical(parsedURL)
+		canonicalURL := ProcessCanonical(parsedURL)
 		redirectParsed, _ := url.Parse(canonicalURL)
-		return processRedirection(redirectParsed), nil
+		return ProcessRedirection(redirectParsed), nil
 	default:
 		return inputURL, nil
 	}
@@ -107,7 +107,7 @@ func processURLByOperation(inputURL, operation string) (string, error) {
 
 // processCanonical cleans up the URL to its canonical form
 // Removes query parameters and trailing slashes
-func processCanonical(parsedURL *url.URL) string {
+func ProcessCanonical(parsedURL *url.URL) string {
 	// Remove query parameters
 	parsedURL.RawQuery = ""
 	parsedURL.Fragment = ""
@@ -131,7 +131,7 @@ func processCanonical(parsedURL *url.URL) string {
 
 // processRedirection modifies the URL for redirection purposes
 // Ensures domain is www.byfood.com and converts to lowercase
-func processRedirection(parsedURL *url.URL) string {
+func ProcessRedirection(parsedURL *url.URL) string {
 	// Set the host to www.byfood.com
 	parsedURL.Host = "www.byfood.com"
 
