@@ -1,0 +1,42 @@
+# Go build artifacts
+backend/*.exe
+backend/book-library-backend
+backend/book-library-backend.exe
+
+# Go modules
+backend/vendor/
+
+# Frontend build artifacts
+frontend/.next/
+frontend/out/
+frontend/dist/
+frontend/build/
+
+# Dependencies
+node_modules/
+frontend/node_modules/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+*.log
+logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary files
+*.tmp
+*.temp

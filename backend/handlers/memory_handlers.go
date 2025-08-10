@@ -1,0 +1,190 @@
+package handlers
+
+import (
+	"encoding/json"
+	"net/http"
+	"strconv"
+	"strings"
+	"time"
+
+	"book-library-backend/constants"
+	"book-library-backend/database"
+	"book-library-backend/models"
+	"book-library-backend/utils"
+
+	"github.com/gorilla/mux"
+	"github.com/sirupsen/logrus"
+)
+
+// GetAllBooks handles GET /api/books
+func GetAllBooks(w http.ResponseWriter, r *http.Request) {
+	logrus.Info("Fetching all books")
+
+	books, err := database.GetAllBooks()
+	if err != nil {
+		logrus.WithError(err).Error("Failed to fetch books")
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to fetch books")
+		return
+	}
+
+	utils.WriteSuccessResponse(w, "Books fetched successfully", books)
+}
+
+// GetBookByID handles GET /api/books/{id}
+func GetBookByID(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	idStr := vars["id"]
+
+	logrus.WithField("id", idStr).Info("Fetching book by ID")
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		utils.WriteErrorResponse(w, http.StatusBadRequest, constants.ErrInvalidID)
+		return
+	}
+
+	book, err := database.GetBookByID(id)
+	if err != nil {
+		if err.Error() == constants.ErrBookNotFound {
+			utils.WriteErrorResponse(w, http.StatusNotFound, constants.ErrBookNotFound)
+			return
+		}
+		logrus.WithError(err).Error("Failed to fetch book")
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, constants.ErrFetchingBooks)
+		return
+	}
+
+	utils.WriteSuccessResponse(w, constants.MsgBookFetched, book)
+}
+
+// CreateBook handles POST /api/books
+func CreateBook(w http.ResponseWriter, r *http.Request) {
+	logrus.Info("Creating new book")
+
+	var req models.CreateBookRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		utils.WriteErrorResponse(w, http.StatusBadRequest, constants.ErrInvalidJSON)
+		return
+	}
+
+	// Validate input
+	if errors := utils.ValidateBook(req); len(errors) > 0 {
+		utils.WriteErrorResponse(w, http.StatusBadRequest, strings.Join(errors, ", "))
+		return
+	}
+
+	book, err := database.CreateBook(req)
+	if err != nil {
+		logrus.WithError(err).Error("Failed to create book")
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, constants.ErrCreatingBook)
+		return
+	}
+
+	w.WriteHeader(http.StatusCreated)
+	utils.WriteSuccessResponse(w, constants.MsgBookCreated, book)
+}
+
+// UpdateBook handles PUT /api/books/{id}
+func UpdateBook(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	idStr := vars["id"]
+
+	logrus.WithField("id", idStr).Info("Updating book")
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		utils.WriteErrorResponse(w, http.StatusBadRequest, constants.ErrInvalidID)
+		return
+	}
+
+	var req models.UpdateBookRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		utils.WriteErrorResponse(w, http.StatusBadRequest, constants.ErrInvalidJSON)
+		return
+	}
+
+	// Validate input
+	createReq := models.CreateBookRequest(req)
+	if errors := utils.ValidateBook(createReq); len(errors) > 0 {
+		utils.WriteErrorResponse(w, http.StatusBadRequest, strings.Join(errors, ", "))
+		return
+	}
+
+	// Check if book exists
+	exists, err := database.BookExists(id)
+	if err != nil {
+		logrus.WithError(err).Error("Failed to check book existence")
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, constants.ErrFetchingBooks)
+		return
+	}
+
+	if !exists {
+		utils.WriteErrorResponse(w, http.StatusNotFound, constants.ErrBookNotFound)
+		return
+	}
+
+	book, err := database.UpdateBook(id, req)
+	if err != nil {
+		logrus.WithError(err).Error("Failed to update book")
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, constants.ErrBookNotFound)
+		return
+	}
+
+	utils.WriteSuccessResponse(w, constants.MsgBookUpdated, book)
+}
+
+// DeleteBook handles DELETE /api/books/{id}
+func DeleteBook(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	idStr := vars["id"]
+
+	logrus.WithField("id", idStr).Info("Deleting book")
+
+	id, err := strconv.Atoi(idStr)
+	if err != nil {
+		utils.WriteErrorResponse(w, http.StatusBadRequest, constants.ErrInvalidID)
+		return
+	}
+
+	// Check if book exists
+	exists, err := database.BookExists(id)
+	if err != nil {
+		logrus.WithError(err).Error("Failed to check book existence")
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, constants.ErrFetchingBooks)
+		return
+	}
+
+	if !exists {
+		utils.WriteErrorResponse(w, http.StatusNotFound, constants.ErrBookNotFound)
+		return
+	}
+
+	err = database.DeleteBook(id)
+	if err != nil {
+		logrus.WithError(err).Error("Failed to delete book")
+		utils.WriteErrorResponse(w, http.StatusInternalServerError, constants.ErrFetchingBooks)
+		return
+	}
+
+	response := models.APIResponse{
+		Success: true,
+		Message: constants.MsgBookDeleted,
+		Data:    map[string]string{"id": idStr},
+	}
+
+	utils.WriteJSONResponse(w, http.StatusOK, response)
+}
+
+// HealthCheck handles GET /api/health
+func HealthCheck(w http.ResponseWriter, r *http.Request) {
+	response := models.APIResponse{
+		Success: true,
+		Message: "Server is healthy",
+		Data: map[string]interface{}{
+			"status":    "ok",
+			"timestamp": time.Now().UTC().Format(time.RFC3339),
+		},
+	}
+
+	utils.WriteJSONResponse(w, http.StatusOK, response)
+}
