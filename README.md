@@ -66,7 +66,7 @@
 ---
 
 ## Additional Notes
-- For API documentation, consider using Swagger for the backend (see previous instructions).
+- For API documentation, You can explore the swagger. After running the project you can visit Documentation (Api Documentation Section)
 - For troubleshooting, check logs and error messages in the terminal.
 
 ---
