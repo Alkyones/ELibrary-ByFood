@@ -38,9 +38,20 @@ api.interceptors.response.use(
 
 export const bookAPI = {
   // Get all books
-  getAllBooks: async (): Promise<Book[]> => {
+  getAllBooks: async (params?: {
+    title?: string;
+    author?: string;
+    orderBy?: string;
+    orderDir?: 'asc' | 'desc';
+  }): Promise<Book[]> => {
     try {
-      const response = await api.get<APIResponse<Book[]>>('/books');
+      const query = [];
+      if (params?.title) query.push(`title=${encodeURIComponent(params.title)}`);
+      if (params?.author) query.push(`author=${encodeURIComponent(params.author)}`);
+      if (params?.orderBy) query.push(`orderBy=${encodeURIComponent(params.orderBy)}`);
+      if (params?.orderDir) query.push(`orderDir=${encodeURIComponent(params.orderDir)}`);
+      const queryString = query.length ? `?${query.join('&')}` : '';
+      const response = await api.get<APIResponse<Book[]>>(`/books${queryString}`);
       return response.data.data || [];
     } catch (error) {
       console.error('Failed to fetch books:', error);

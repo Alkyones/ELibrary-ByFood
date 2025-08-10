@@ -11,6 +11,7 @@ import (
 	"book-library-backend/database"
 	"book-library-backend/models"
 	"book-library-backend/utils"
+	"sort"
 
 	"github.com/gorilla/mux"
 	"github.com/sirupsen/logrus"
@@ -20,14 +21,60 @@ import (
 func GetAllBooks(w http.ResponseWriter, r *http.Request) {
 	logrus.Info("Fetching all books")
 
-	books, err := database.GetAllBooks()
-	if err != nil {
-		logrus.WithError(err).Error("Failed to fetch books")
-		utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to fetch books")
-		return
-	}
+       // Parse query params for filtering and ordering
+       query := r.URL.Query()
+       filterTitle := strings.TrimSpace(query.Get("title"))
+       filterAuthor := strings.TrimSpace(query.Get("author"))
+       orderBy := strings.TrimSpace(query.Get("orderBy")) // e.g., "title", "author", "year"
+       orderDir := strings.ToLower(strings.TrimSpace(query.Get("orderDir"))) // "asc" or "desc"
 
-	utils.WriteSuccessResponse(w, "Books fetched successfully", books)
+       books, err := database.GetAllBooks()
+       if err != nil {
+	       logrus.WithError(err).Error("Failed to fetch books")
+	       utils.WriteErrorResponse(w, http.StatusInternalServerError, "Failed to fetch books")
+	       return
+       }
+
+       // Filtering
+       filteredBooks := make([]*models.Book, 0)
+       for _, book := range books {
+	       if filterTitle != "" && !strings.Contains(strings.ToLower(book.Title), strings.ToLower(filterTitle)) {
+		       continue
+	       }
+	       if filterAuthor != "" && !strings.Contains(strings.ToLower(book.Author), strings.ToLower(filterAuthor)) {
+		       continue
+	       }
+	       filteredBooks = append(filteredBooks, book)
+       }
+
+       // Ordering
+       if orderBy != "" {
+	       switch orderBy {
+	       case "title":
+		       sort.Slice(filteredBooks, func(i, j int) bool {
+			       if orderDir == "desc" {
+				       return filteredBooks[i].Title > filteredBooks[j].Title
+			       }
+			       return filteredBooks[i].Title < filteredBooks[j].Title
+		       })
+	       case "author":
+		       sort.Slice(filteredBooks, func(i, j int) bool {
+			       if orderDir == "desc" {
+				       return filteredBooks[i].Author > filteredBooks[j].Author
+			       }
+			       return filteredBooks[i].Author < filteredBooks[j].Author
+		       })
+	       case "year":
+		       sort.Slice(filteredBooks, func(i, j int) bool {
+			       if orderDir == "desc" {
+				       return filteredBooks[i].Year > filteredBooks[j].Year
+			       }
+			       return filteredBooks[i].Year < filteredBooks[j].Year
+		       })
+	       }
+       }
+
+       utils.WriteSuccessResponse(w, "Books fetched successfully", filteredBooks)
 }
 
 // GetBookByID handles GET /api/books/{id}
