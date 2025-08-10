@@ -226,6 +226,56 @@ export default function BooksPage() {
           loading={loading}
         />
       </Modal>
+        {/* View Book Modal */}
+        <Modal
+          isOpen={!!selectedBook && !showEditModal && !showDeleteModal && !showCreateModal}
+          onClose={handleCloseModals}
+          title="Book Details"
+        >
+          {selectedBook && (
+            <div className="space-y-6">
+              <div className="flex items-center justify-between">
+                <h2 className="font-bold text-2xl text-gray-900">{selectedBook.title}</h2>
+                {selectedBook.status && (
+                  <span
+                    className={`inline-block px-3 py-1 text-sm font-semibold rounded-full 
+                      ${selectedBook.status === 'read' ? 'bg-green-100 text-green-800' : ''}
+                      ${selectedBook.status === 'reading' ? 'bg-yellow-100 text-yellow-800' : ''}
+                    `}
+                  >
+                    {selectedBook.status.charAt(0).toUpperCase() + selectedBook.status.slice(1)}
+                  </span>
+                )}
+              </div>
+              <p className="text-gray-700 mb-1"><span className="font-semibold">Author:</span> {selectedBook.author}</p>
+              <div className="mt-4">
+                <h3 className="font-semibold text-gray-900 mb-1">Description</h3>
+                <p className="text-gray-600">{selectedBook.description || 'No description available.'}</p>
+              </div>
+              <hr className="my-4" />
+              <div className="text-xs text-gray-500">
+                <div>Added: {selectedBook.created_at ? new Date(selectedBook.created_at).toLocaleString() : '-'}</div>
+                <div>Last updated: {selectedBook.updated_at ? new Date(selectedBook.updated_at).toLocaleString() : '-'}</div>
+              </div>
+              <div className="flex justify-end space-x-3 mt-6">
+                <button
+                  type="button"
+                  onClick={() => { setShowEditModal(true); }}
+                  className="px-4 py-2 text-sm font-medium text-blue-700 bg-blue-100 rounded-md hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                >
+                  Edit Book
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCloseModals}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          )}
+        </Modal>
 
       {/* Edit Book Modal */}
       <Modal
